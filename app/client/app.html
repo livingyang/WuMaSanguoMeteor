@@ -3,11 +3,68 @@
 </head>
 
 <body>
-  {{> hello}}
+	{{> hello}}
+	<br/>
+	<div class="well">
+	{{> skillConfig}}
+	</div>
 </body>
 
 <template name="hello">
-  <h1>Hello World!</h1>
-  {{greeting}}
-  <input type="button" value="Click" />
+	<h1>Hello World!</h1>
+	{{greeting}}
+	<input class="test" type="button" value="Click" />
+</template>
+
+<template name="skillConfig">
+	<div class="alert alert-success">
+		<p>{{config}}</p>
+	</div>
+	<div class="alert alert-danger">
+		{{#each details}}
+		<p>{{.}}</p>
+		{{/each}}
+	</div>
+
+	{{#each skillArray}}
+	<div class="well">
+		{{> skill}}
+	</div>
+	{{/each}}
+</template>
+
+<template name="skill">
+	<button class="btn btn-primary btn-large btnFlag">目标：{{flagName}}</button>
+	<button class="btn btn-primary btn-large btnRange">范围：{{rangeName}} <span class="caret"></span></button>
+
+	<div class="btn-group">
+		<button type="button" class="btn btn-default btn-primary dropdown-toggle" data-toggle="dropdown">范围：{{rangeName}} <span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+			<li><a href="#">Action</a></li>
+			<li><a href="#">Another action</a></li>
+			<li><a href="#">Something else here</a></li>
+			<li class="divider"></li>
+			<li><a href="#">Separated link</a></li>
+		</ul>
+	</div>
+
+	{{#each effectArray}}
+	{{> effect}}
+	{{/each}}
+</template>
+
+<template name="effect">
+	<div class="well">
+		<p>名称: {{nameDetail}}</p>
+		<div class="input-group col-xs-3">
+			<span class="input-group-addon">参数1</span>
+			<input type="text" class="form-control param1" value="{{param1}}">
+		</div>
+		<div class="input-group col-xs-3">
+			<span class="input-group-addon">参数2</span>
+			<input type="text" class="form-control param2" onchange="printParam(this.value);" value="{{param2}}">
+		</div>
+		<div class="alert alert-info">{{detail}}</div>
+	</div>
 </template>
