@@ -37,7 +37,6 @@ getSkillConfig = ->
 
 Meteor.startup ->
 	setSkillConfig "(a)p,200,300;fa,2,50(Wi)fu,2,100"
-	console.log getSkillConfig()
 
 ###
 ###
@@ -51,23 +50,71 @@ Template.skillConfig.config = ->
 Template.skillConfig.details = ->
 	convertSkillConfigToDetail getSkillConfig()
 
+Template.skillConfig.events "click .btnAddSkill": ->
+	skillCollection.insert {flag: "E", range: "s"}, (error, result) ->
+		effectCollection.insert
+			skillId: result
+			name: "p"
+			param1: 90
+			param2: 100
+
+Template.skill.flagButtons = ->
+	for flag, flagInfo of ConfigField.flag
+		flag: flag
+		flagName: ConfigField.getSkillFlag flag	
+
+Template.skill.rangeButtons = ->
+	for range, rangeInfo of ConfigField.range
+		range: range
+		rangeName: ConfigField.getSkillRange range
+
 Template.skill.flagName = ->
 	ConfigField.getSkillFlag @flag
 
 Template.skill.rangeName = ->
 	ConfigField.getSkillRange @range
 
+Template.skill.canAddEffect = ->
+	(effectCollection.find skillId: @_id).count() <= 3
+
 Template.skill.effectArray = ->
 	effectCollection.find skillId: @_id
 
-Template.skill.events "click .btnFlag": ->
-	skillCollection.update {_id: @_id}, {$set: flag: if @flag is "E" then "W" else "E"}
+Template.skill.events "click .btnFlag": (aEvent) ->
+	skillCollection.update {_id: $(aEvent.target).attr "skillId"}, {$set: flag: $(aEvent.target).attr "flag"}
 
-Template.effect.nameDetail = ->
+Template.skill.events "click .btnRange": (aEvent) ->
+	skillCollection.update {_id: $(aEvent.target).attr "skillId"}, {$set: range: $(aEvent.target).attr "range"}
+
+Template.skill.events "click .btnAddEffect": (aEvent) ->
+	effectCollection.insert
+		skillId: @_id
+		name: "p"
+		param1: 90
+		param2: 100
+
+Template.skill.events "click .btnRemoveSkill": (aEvent) ->
+	skillCollection.remove _id: @_id
+
+Template.effect.effectName = ->
 	ConfigField.getEffectName @name
 
 Template.effect.detail = ->
 	ConfigField.getEffectDetail @name
+
+Template.effect.effectButtons = ->
+	for effect, effectInfo of ConfigField.effect
+		effect: effect
+		effectDetail: ConfigField.getEffectName effect
+
+Template.effect.events "click .btnEffect": (aEvent) ->
+	effectCollection.update {_id: $(aEvent.target).attr "effectId"}, {$set: name: $(aEvent.target).attr "effect"}
+
+Template.effect.events "click .btnRemove": (aEvent) ->
+	if (effectCollection.find skillId: @skillId).count() is 1
+		skillCollection.remove _id: @skillId
+	
+	effectCollection.remove _id: @_id
 
 Template.effect.events "change .param1": (sender) ->
 	effectCollection.update {_id: @_id}, {$set: param1: sender.target.value}
@@ -75,16 +122,20 @@ Template.effect.events "change .param1": (sender) ->
 Template.effect.events "change .param2": (sender) ->
 	effectCollection.update {_id: @_id}, {$set: param2: sender.target.value}
 
-Template.hello.greeting = ->
-	"Welcome to app."
+###
+clipboard
+###
 
-Template.hello.events "click .test": ->
-	config = "(Ea)p,200,300;fa,2,50(Wi)fu,2,100;(Wrwi)fu,4,100"
-	try
-		# alert convertSelectorToDetail "Wminh"
-		alert (convertSkillConfigToDetail config).join "   |\n"
-	catch e
-		alert e
+Meteor.startup ->
+	client = new ZeroClipboard $("#copy-button1"),
+		moviePath: "ZeroClipboard.swf"
+
+	client.on "load", (client) ->
+		client.on "complete", (client, args) ->
+			alert("已复制: " + args.text )
+		
+		client.on "dataRequested", (client, args) ->
+			client.setText getSkillConfig()
 
 ###
 ConfigField
@@ -162,22 +213,36 @@ ConfigField =
 		maxf: ["max fury", "怒气最多的人"]
 
 	effect :
-		p: ["physical", "物理伤害", "参数1，最小伤害百分比，默认100%。参数2，最大伤害百分比，默认100%", (params) ->
+		p: ["physical", "物理伤害", "参数1，最小伤害百分比。参数2，最大伤害百分比。", (params) ->
 			"造成#{params[0] or 100}% ~ #{params[1] or 100}%物理伤害"
 		]
-		m: ["magic", "法术伤害", "参数1，最小伤害百分比，默认100%。参数2，最大伤害百分比，默认100%"]
-		r: ["recover", "回复", "参数1，最小回复百分比，默认100%。参数2，最大回复百分比，默认100%"]
-		fu: ["fury up", "增加怒气", "参数1，增加怒气值，默认1。参数2，命中概率，默认100%。", (params) ->
+		m: ["magic", "法术伤害", "参数1，最小伤害百分比。参数2，最大伤害百分比。", (params) ->
+			"造成#{params[0] or 100}% ~ #{params[1] or 100}%法术伤害"
+		]
+		r: ["recover", "回复", "参数1，最小回复百分比。参数2，最大回复百分比。", (params) ->
+			"回复#{params[0] or 100}% ~ #{params[1] or 100}%血量"
+		]
+		fu: ["fury up", "增加怒气", "参数1，增加怒气值。参数2，命中概率。", (params) ->
 			"#{params[1] or 100}%的概率增加#{params[0] or 1}怒气"
 		]
-		fd: ["fury down", "减少怒气", "参数1，减少怒气值，默认1。参数2，命中概率，默认100%"]
-		fa: ["faint", "眩晕", "参数1，回合数，默认1。参数2，命中概率，默认100%", (params) ->
+		fd: ["fury down", "减少怒气", "参数1，减少怒气值。参数2，命中概率。", (params) ->
+			"#{params[1] or 100}%的概率减少#{params[0] or 1}怒气"
+		]
+		fa: ["faint", "眩晕", "参数1，回合数。参数2，命中概率。", (params) ->
 			"#{params[1] or 100}%的概率眩晕#{params[0] or 1}回合"
 		]
-		bu: ["burn", "燃烧", "参数1，回合数，默认1。参数2，命中概率，默认100%"]
-		po: ["poizon", "中毒", "参数1，回合数，默认1。参数2，命中概率，默认100%"]
-		fo: ["fobid", "封技", "参数1，回合数，默认1。参数2，命中概率，默认100%"]
-		nd: ["no damage", "无伤", "参数1，回合数，默认1。参数2，命中概率，默认100%"]
+		bu: ["burn", "燃烧", "参数1，回合数。参数2，命中概率。", (params) ->
+			"#{params[1] or 100}%的概率燃烧#{params[0] or 1}回合"
+		]
+		po: ["poizon", "中毒", "参数1，回合数。参数2，命中概率。", (params) ->
+			"#{params[1] or 100}%的概率中毒#{params[0] or 1}回合"
+		]
+		fo: ["fobid", "封技", "参数1，回合数。参数2，命中概率。", (params) ->
+			"#{params[1] or 100}%的概率封技#{params[0] or 1}回合"
+		]
+		nd: ["no damage", "免伤", "参数1，回合数。参数2，命中概率.", (params) ->
+			"#{params[1] or 100}%的概率免伤#{params[0] or 1}回合"
+		]
 
 	getSkillFlag: (flag) ->
 		ConfigField.flag[flag][1]
