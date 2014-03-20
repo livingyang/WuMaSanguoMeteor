@@ -243,6 +243,18 @@ ConfigField =
 		nd: ["no damage", "免伤", "参数1，回合数。参数2，命中概率.", (params) ->
 			"#{params[1] or 100}%的概率免伤#{params[0] or 1}回合"
 		]
+		pa: ["palsy", "麻痹", "参数1，回合数。参数2，命中概率.", (params) ->
+			"#{params[1] or 100}%的概率麻痹#{params[0] or 1}回合"
+		]
+		st: ["stone", "石化", "参数1，回合数。参数2，命中概率.", (params) ->
+			"#{params[1] or 100}%的概率石化#{params[0] or 1}回合"
+		]
+		co: ["confusion", "混乱", "参数1，回合数。参数2，命中概率.", (params) ->
+			"#{params[1] or 100}%的概率混乱#{params[0] or 1}回合"
+		]
+		blu: ["block up", "提升格挡", "参数1，回合数。参数2，提升概率.", (params) ->
+			"持续#{params[0] or 1}回合，提升#{params[1] or 100}%的格挡率"
+		]
 
 	getSkillFlag: (flag) ->
 		ConfigField.flag[flag][1]
