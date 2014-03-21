@@ -126,16 +126,17 @@ Template.effect.events "change .param2": (sender) ->
 clipboard
 ###
 
-Meteor.startup ->
-	client = new ZeroClipboard $("#copy-button1"),
-		moviePath: "ZeroClipboard.swf"
+zeroClipboard = null
+Template.skillConfig.rendered = ->
+	return if zeroClipboard?
+	zeroClipboard = new ZeroClipboard $("#copy-button1")
 
-	client.on "load", (client) ->
-		client.on "complete", (client, args) ->
+	zeroClipboard.on "load", (zeroClipboard) ->
+		zeroClipboard.on "complete", (zeroClipboard, args) ->
 			alert("已复制: " + args.text )
 		
-		client.on "dataRequested", (client, args) ->
-			client.setText getSkillConfig()
+		zeroClipboard.on "dataRequested", (zeroClipboard, args) ->
+			zeroClipboard.setText getSkillConfig()
 
 ###
 ConfigField

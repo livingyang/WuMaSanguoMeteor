@@ -1,0 +1,94 @@
+<template name="skillConfig">
+	<div class="row">
+		<div class="col-xs-6">
+			<div class="alert alert-success">
+				<p>{{config}}
+					{{#constant}}
+					<a class="btn btn-default pull-right" id="copy-button1">Copy</a>
+					{{/constant}}
+				</p>
+			</div>
+			<div class="alert alert-danger">
+				{{#each details}}
+				<p>* {{.}}</p>
+				{{/each}}
+			</div>
+
+			{{#constant}}
+			<p>可在此填入对比信息(非必须)</p>
+			<textarea class="form-control" rows="3"></textarea>
+			{{/constant}}
+
+		</div>
+		<div class="col-xs-6">
+			{{#each skillArray}}
+			<div class="panel panel-warning">
+				{{> skill}}
+			</div>
+			{{/each}}
+
+			<a class="btn btn-success btnAddSkill">增加技能效果</a>
+		</div>
+	</div>
+</template>
+
+<template name="skill">
+	<div class="panel-heading">
+		<div class="btn-group">
+			<button type="button" class="btn btn-default btn-primary dropdown-toggle" data-toggle="dropdown">目标：{{flagName}} <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu" role="menu">
+				{{#each flagButtons}}
+				<li><a flag="{{flag}}" skillId="{{../_id}}" class="btnFlag">{{flagName}}</a></li>
+				{{/each}}
+			</ul>
+		</div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-default btn-primary dropdown-toggle" data-toggle="dropdown">范围：{{rangeName}} <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu" role="menu">
+				{{#each rangeButtons}}
+				<li><a range="{{range}}" skillId="{{../_id}}" class="btnRange">{{rangeName}}</a></li>
+				{{/each}}
+			</ul>
+		</div>
+
+		{{#if canAddEffect}}
+		<a class="btn btn-success btnAddEffect">增加一个效果</a>
+		{{/if}}
+
+		<a class="btn btn-danger btnRemoveSkill">删除此技能效果</a>
+	</div>
+
+	<div class="panel-body">
+		{{#each effectArray}}
+		{{> effect}}
+		{{/each}}
+	</div>
+</template>
+
+<template name="effect">
+	<div class="well">
+		<div class="btn-group">
+			<button type="button" class="btn btn-default btn-primary dropdown-toggle" data-toggle="dropdown">效果：{{effectName}} <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu" role="menu">
+				{{#each effectButtons}}
+
+				<li><a effect="{{effect}}" effectId="{{../_id}}" class="btnEffect">{{effectDetail}}</a></li>
+				{{/each}}
+			</ul>
+		</div>
+		<a class="btn btn-danger btnRemove">删除</a>
+
+		<div class="input-group col-xs-6">
+			<span class="input-group-addon">参数1</span>
+			<input type="text" class="form-control param1" value="{{param1}}">
+		</div>
+		<div class="input-group col-xs-6">
+			<span class="input-group-addon">参数2</span>
+			<input type="text" class="form-control param2" onchange="printParam(this.value);" value="{{param2}}">
+		</div>
+		<div class="alert alert-info">{{detail}}</div>
+	</div>
+</template>
