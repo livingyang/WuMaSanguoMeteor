@@ -195,6 +195,7 @@ ConfigField =
 
 	range :
 		s: ["single", "单体"]
+		bs: ["back single", "后排单体"]
 		a: ["all", "全体"]
 		f: ["front", "前排"]
 		b: ["back", "后排"]
@@ -228,6 +229,9 @@ ConfigField =
 		]
 		fd: ["fury down", "减少怒气", "参数1，减少怒气值。参数2，命中概率。", (params) ->
 			"#{params[1] or 100}%的概率减少#{params[0] or 1}怒气"
+		]
+		ff: ["fury forbid", "禁怒", "参数1，回合数。参数2，命中概率。", (params) ->
+			"#{params[1] or 100}%的概率禁止怒气增加#{params[0] or 1}回合。"
 		]
 		fa: ["faint", "眩晕", "参数1，回合数。参数2，命中概率。", (params) ->
 			"#{params[1] or 100}%的概率眩晕#{params[0] or 1}回合"
